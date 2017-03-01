@@ -2492,6 +2492,7 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
             temp_ctx = temp_canvas.getContext('2d');
             temp_canvas.width = ris.w;
             temp_canvas.height = ris.h;
+
             if (image !== null) {
                 var x = (center.x - theArea.getSize().w / 2) * (image.width / ctx.canvas.width),
                     y = (center.y - theArea.getSize().h / 2) * (image.height / ctx.canvas.height),
@@ -2861,7 +2862,9 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                 // We maximize the rendered size
                 var zoom = 1;
                 if (image && ctx && ctx.canvas) {
-                    zoom = image.width / ctx.canvas.width;
+					var wzoom = image.width / ctx.canvas.width;
+					var hzoom = image.height / ctx.canvas.height;
+                    zoom = Math.min(wzoom, hzoom, 1.5);
                 }
                 var size = {
                     w: zoom * theArea.getSize().w,
@@ -2870,10 +2873,16 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
 
                 if (areaMinRelativeSize) {
                     if (size.w < areaMinRelativeSize.w) {
-                        size.w = areaMinRelativeSize.w;
+						zoom = areaMinRelativeSize.w / size.w;
+						size.w = zoom * size.w;
+						size.h = zoom * size.h;
+                        //size.w = areaMinRelativeSize.w;
                     }
                     if (size.h < areaMinRelativeSize.h) {
-                        size.h = areaMinRelativeSize.h;
+						zoom = areaMinRelativeSize.h / size.h;
+						size.w = zoom * size.w;
+						size.h = zoom * size.h;
+                        //size.h = areaMinRelativeSize.h;
                     }
                 }
 
@@ -2893,6 +2902,7 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                 return;
             }
             if (angular.isUndefined(size)) {
+				resImgSize = 'selection';
                 return;
             }
             //allow setting of size to "selection" for mirroring selection's dimensions
@@ -3092,7 +3102,7 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
             liveView: '=?',
             initMaxArea: '=?',
             areaCoords: '=?',
-            areaType: '@',
+            areaType: '=',
             areaMinSize: '=?',
             areaInitSize: '=?',
             areaInitCoords: '=?',
@@ -3103,11 +3113,11 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
              /* if canvas is 500x500 Crop coordinates will be x: 50, y: 50, w: 50, h: 50 */
             /* if canvas is 100x100 crop coordinates will be x: 10, y: 10, w: 10, h: 10 */
             areaMinRelativeSize: '=?',
-            resultImageSize: '@',
-            resultImageFormat: '@',
-            resultImageQuality: '@',
+            resultImageSize: '=',
+            resultImageFormat: '=',
+            resultImageQuality: '=',
 
-            aspectRatio: '@',
+            aspectRatio: '=',
             allowCropResizeOnCorners: '=?',
 
             dominantColor: '=?',
@@ -3167,6 +3177,8 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
                             callback(resultImage);
                         }
                         cropHost.getResultImageDataBlob().then(function (blob) {
+							if (!blob)
+								return;
                             scope.resultBlob = blob;
                             scope.urlBlob = urlCreator.createObjectURL(blob);
                         });
@@ -3253,9 +3265,15 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
                     case 'de':
                     case 'de-DE':
                         return 'Laden';
-
+						
+					case 'en':
+                    case 'en-US':
+						return 'loading';
+						
+					case 'zh':
+                    case 'zh-CN':
                     default:
-                        return 'Loading';
+                        return '请稍候';
                 }
             };
 
@@ -3263,7 +3281,7 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
                 scope.chargement = printLoadMsg();
             }
             var displayLoading = function () {
-                element.append('<div class="loading"><span>' + scope.chargement + '...</span></div>');
+                element.append('<div class="loading"><span class="ui loading form">' + scope.chargement + '...</span></div>');
             };
 
             // Setup CropHost Event Handlers
@@ -3351,6 +3369,9 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
                 updateResultImage(scope);
             });
             scope.$watch('resultImageSize', function () {
+				if (typeof scope.resultImageSize === 'string' && scope.resultImageSize.indexOf(']')>=0)
+                    scope.resultImageSize = JSON.parse(scope.resultImageSize);
+
                 cropHost.setResultImageSize(scope.resultImageSize);
                 updateResultImage(scope);
             });
