@@ -32,6 +32,7 @@ ui-cropper canvas {
 }
 /* line 28, ../../source/scss/ui-cropper.scss */
 ui-cropper .loading {
+  position: static;
   width: 100%;
   font-size: 16px;
   font-weight: bold;
@@ -50,6 +51,19 @@ ui-cropper .loading {
   color: white;
   background-color: rgba(0, 0, 0, 0.75);
 }
+
+ui-cropper > .loading > .ui.loading.form {
+	height: 50px;
+    text-indent: 100px;
+    line-height: 50px;
+    display: block;
+    text-align: center
+}
+
+ui-cropper > .loading > .ui.loading.form:before{
+	background: transparent
+}
+
 /* line 29, ../../source/scss/ui-cropper.scss */
 ui-cropper .loading .fixed-height {
   height: 100%;
