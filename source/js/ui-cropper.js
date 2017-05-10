@@ -5,6 +5,7 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
         restrict: 'E',
         scope: {
             image: '=',
+            imageAngle:'=',
             resultImage: '=',
             resultArrayImage: '=?',
             resultBlob: '=?',
@@ -240,7 +241,7 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
                 scope.timeout = $timeout(function () {
                     scope.timeout = null;
                     cropHost.setInitMax(scope.initMaxArea);
-                    cropHost.setNewImageSource(scope.image);
+                    cropHost.setNewImageSource(scope.image, scope.imageAngle);
                 }, 100);
             });
             scope.$watch('areaType', function () {

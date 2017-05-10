@@ -3,7 +3,7 @@
 angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCircle', 'cropAreaSquare', 'cropAreaRectangle', 'cropEXIF', function ($document, $q, CropAreaCircle, CropAreaSquare, CropAreaRectangle, cropEXIF) {
     /* STATIC FUNCTIONS */
     var colorPaletteLength = 8;
-    
+
     // Get Element's Offset
     var getElementOffset = function (elem) {
         var box = elem.getBoundingClientRect();
@@ -388,7 +388,7 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
             return theArea;
         };
 
-        this.setNewImageSource = function (imageSource) {
+        this.setNewImageSource = function (imageSource, imageAngle) {
             image = null;
             resetCropHost();
             if (imageSource) {
@@ -399,7 +399,7 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                     cropEXIF.getData(newImage, function () {
                         var orientation = cropEXIF.getTag(newImage, 'Orientation');
 
-                        if ([3, 6, 8].indexOf(orientation) > -1) {
+                        if (imageAngle !=0 || [3, 6, 8].indexOf(orientation) > -1) {
                             var canvas = document.createElement('canvas'),
                                 ctx = canvas.getContext('2d'),
                                 cw = newImage.width,
@@ -458,6 +458,12 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                             canvas.width = cw;
                             canvas.height = ch;
                             ctx.rotate(deg * Math.PI / 180);
+
+                            // 以图片中心为原点旋转指定角度
+                            ctx.translate(cw/2, ch/2);
+                            ctx.rotate(imageAngle*Math.PI/180);
+                            ctx.translate(-cw/2, -ch/2);
+
                             ctx.drawImage(newImage, cx, cy, rw, rh);
 
                             image = new Image();
