@@ -1,11 +1,11 @@
 /*!
- * uiCropper v1.0.4
+ * uiCropper v1.0.5
  * https://crackerakiua.github.io/ui-cropper/
  *
- * Copyright (c) 2016 Alex Kaul
+ * Copyright (c) 2017 Alex Kaul
  * License: MIT
  *
- * Generated at Friday, December 23rd, 2016, 3:05:21 PM
+ * Generated at Thursday, June 15th, 2017, 5:20:25 PM
  */
 (function() {
 angular.module('uiCropper', []);
@@ -183,9 +183,9 @@ angular.module('uiCropper').factory('cropAreaRectangle', ['cropArea', function (
         CropArea.apply(this, arguments);
 
         this._resizeCtrlBaseRadius = 15;
-        this._resizeCtrlNormalRatio = 0.6;
-        this._resizeCtrlHoverRatio = 0.70;
-        this._iconMoveNormalRatio = 0.9;
+        this._resizeCtrlNormalRatio = 1.0;  //0.6;
+        this._resizeCtrlHoverRatio = 1.2;
+        this._iconMoveNormalRatio = 1.0;
         this._iconMoveHoverRatio = 1.2;
 
         this._resizeCtrlNormalRadius = this._resizeCtrlBaseRadius * this._resizeCtrlNormalRatio;
@@ -243,13 +243,24 @@ angular.module('uiCropper').factory('cropAreaRectangle', ['cropArea', function (
     CropAreaRectangle.prototype._isCoordWithinResizeCtrl = function (coord) {
         var resizeIconsCenterCoords = this._calcRectangleCorners();
         var res = -1;
+        var touchDis = this._resizeCtrlHoverRadius*2;
+        touchDis *= touchDis;
+
         for (var i = 0, len = resizeIconsCenterCoords.length; i < len; i++) {
             var resizeIconCenterCoords = resizeIconsCenterCoords[i];
-            if (coord[0] > resizeIconCenterCoords[0] - this._resizeCtrlHoverRadius && coord[0] < resizeIconCenterCoords[0] + this._resizeCtrlHoverRadius &&
-                coord[1] > resizeIconCenterCoords[1] - this._resizeCtrlHoverRadius && coord[1] < resizeIconCenterCoords[1] + this._resizeCtrlHoverRadius) {
-                res = i;
-                break;
+            var dx = coord[0] - resizeIconCenterCoords[0];
+            var dy = coord[1] - resizeIconCenterCoords[1];
+            var dis2 = dx*dx + dy*dy;
+            if (dis2 < touchDis)
+            {
+              res = i;
+              break;
             }
+            // if (coord[0] > resizeIconCenterCoords[0] - this._resizeCtrlHoverRadius && coord[0] < resizeIconCenterCoords[0] + this._resizeCtrlHoverRadius &&
+            //     coord[1] > resizeIconCenterCoords[1] - this._resizeCtrlHoverRadius && coord[1] < resizeIconCenterCoords[1] + this._resizeCtrlHoverRadius) {
+            //     res = i;
+            //     break;
+            // }
         }
         return res;
     };
@@ -1299,14 +1310,30 @@ angular.module('uiCropper').factory('cropCanvas', [function() {
             ctx.restore();
         };
 
+        // this.drawIconResizeBoxBase = function(centerCoords, boxSize, scale) {
+        //   var scaledBoxSize = boxSize * scale;
+        //   ctx.save();
+        //   ctx.strokeStyle = colors.resizeBoxStroke;
+        //   ctx.lineWidth = cropper.strokeWidth;
+        //   ctx.fillStyle = colors.resizeBoxFill;
+        //   ctx.fillRect(centerCoords[0] - scaledBoxSize / 2, centerCoords[1] - scaledBoxSize / 2, scaledBoxSize, scaledBoxSize);
+        //   ctx.strokeRect(centerCoords[0] - scaledBoxSize / 2, centerCoords[1] - scaledBoxSize / 2, scaledBoxSize, scaledBoxSize);
+        //   ctx.restore();
+        // };
         this.drawIconResizeBoxBase = function(centerCoords, boxSize, scale) {
             var scaledBoxSize = boxSize * scale;
             ctx.save();
-            ctx.strokeStyle = colors.resizeBoxStroke;
-            ctx.lineWidth = cropper.strokeWidth;
-            ctx.fillStyle = colors.resizeBoxFill;
-            ctx.fillRect(centerCoords[0] - scaledBoxSize / 2, centerCoords[1] - scaledBoxSize / 2, scaledBoxSize, scaledBoxSize);
-            ctx.strokeRect(centerCoords[0] - scaledBoxSize / 2, centerCoords[1] - scaledBoxSize / 2, scaledBoxSize, scaledBoxSize);
+              // 绘制原型选取区域
+              ctx.beginPath();
+                ctx.strokeStyle = colors.resizeBoxStroke;
+                ctx.lineWidth = cropper.strokeWidth;
+                ctx.fillStyle = colors.resizeBoxFill;
+                ctx.arc(centerCoords[0], centerCoords[1], scaledBoxSize, 0, 2*Math.PI);
+                ctx.stroke();
+                ctx.globalAlpha=0.2;  // 设置半透明
+                ctx.fill();
+              ctx.stroke();
+            ctx.globalAlpha=1.0;
             ctx.restore();
         };
         this.drawIconResizeBoxNESW = function(centerCoords, boxSize, scale) {
@@ -1331,7 +1358,7 @@ angular.module('uiCropper').factory('cropCanvas', [function() {
             ctx.save();
             ctx.strokeStyle = colors.areaOutline;
             ctx.lineWidth = cropper.strokeWidth;
-            ctx.setLineDash([5, 5]);
+//            ctx.setLineDash([5, 5]);
             ctx.beginPath();
             fnDrawClipPath(ctx, centerCoords, size);
             ctx.stroke();
@@ -2166,7 +2193,7 @@ angular.module('uiCropper').service('cropEXIF', [function () {
 angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCircle', 'cropAreaSquare', 'cropAreaRectangle', 'cropEXIF', function ($document, $q, CropAreaCircle, CropAreaSquare, CropAreaRectangle, cropEXIF) {
     /* STATIC FUNCTIONS */
     var colorPaletteLength = 8;
-    
+
     // Get Element's Offset
     var getElementOffset = function (elem) {
         var box = elem.getBoundingClientRect();
@@ -2492,7 +2519,6 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
             temp_ctx = temp_canvas.getContext('2d');
             temp_canvas.width = ris.w;
             temp_canvas.height = ris.h;
-
             if (image !== null) {
                 var x = (center.x - theArea.getSize().w / 2) * (image.width / ctx.canvas.width),
                     y = (center.y - theArea.getSize().h / 2) * (image.height / ctx.canvas.height),
@@ -2552,7 +2578,7 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
             return theArea;
         };
 
-        this.setNewImageSource = function (imageSource) {
+        this.setNewImageSource = function (imageSource, imageAngle) {
             image = null;
             resetCropHost();
             if (imageSource) {
@@ -2563,7 +2589,7 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                     cropEXIF.getData(newImage, function () {
                         var orientation = cropEXIF.getTag(newImage, 'Orientation');
 
-                        if ([3, 6, 8].indexOf(orientation) > -1) {
+                        if (imageAngle !=0 || [3, 6, 8].indexOf(orientation) > -1) {
                             var canvas = document.createElement('canvas'),
                                 ctx = canvas.getContext('2d'),
                                 cw = newImage.width,
@@ -2622,6 +2648,12 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                             canvas.width = cw;
                             canvas.height = ch;
                             ctx.rotate(deg * Math.PI / 180);
+
+                            // 以图片中心为原点旋转指定角度
+                            ctx.translate(cw/2, ch/2);
+                            ctx.rotate(imageAngle*Math.PI/180);
+                            ctx.translate(-cw/2, -ch/2);
+
                             ctx.drawImage(newImage, cx, cy, rw, rh);
 
                             image = new Image();
@@ -2862,9 +2894,7 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                 // We maximize the rendered size
                 var zoom = 1;
                 if (image && ctx && ctx.canvas) {
-					var wzoom = image.width / ctx.canvas.width;
-					var hzoom = image.height / ctx.canvas.height;
-                    zoom = Math.min(wzoom, hzoom, 1.5);
+                    zoom = image.width / ctx.canvas.width;
                 }
                 var size = {
                     w: zoom * theArea.getSize().w,
@@ -2873,16 +2903,10 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
 
                 if (areaMinRelativeSize) {
                     if (size.w < areaMinRelativeSize.w) {
-						zoom = areaMinRelativeSize.w / size.w;
-						size.w = zoom * size.w;
-						size.h = zoom * size.h;
-                        //size.w = areaMinRelativeSize.w;
+                        size.w = areaMinRelativeSize.w;
                     }
                     if (size.h < areaMinRelativeSize.h) {
-						zoom = areaMinRelativeSize.h / size.h;
-						size.w = zoom * size.w;
-						size.h = zoom * size.h;
-                        //size.h = areaMinRelativeSize.h;
+                        size.h = areaMinRelativeSize.h;
                     }
                 }
 
@@ -2902,7 +2926,6 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                 return;
             }
             if (angular.isUndefined(size)) {
-				resImgSize = 'selection';
                 return;
             }
             //allow setting of size to "selection" for mirroring selection's dimensions
@@ -3086,6 +3109,7 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
         restrict: 'E',
         scope: {
             image: '=',
+            imageAngle:'=',
             resultImage: '=',
             resultArrayImage: '=?',
             resultBlob: '=?',
@@ -3102,7 +3126,7 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
             liveView: '=?',
             initMaxArea: '=?',
             areaCoords: '=?',
-            areaType: '=',
+            areaType: '@',
             areaMinSize: '=?',
             areaInitSize: '=?',
             areaInitCoords: '=?',
@@ -3113,11 +3137,11 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
              /* if canvas is 500x500 Crop coordinates will be x: 50, y: 50, w: 50, h: 50 */
             /* if canvas is 100x100 crop coordinates will be x: 10, y: 10, w: 10, h: 10 */
             areaMinRelativeSize: '=?',
-            resultImageSize: '=',
-            resultImageFormat: '=',
-            resultImageQuality: '=',
+            resultImageSize: '@',
+            resultImageFormat: '@',
+            resultImageQuality: '=?',
 
-            aspectRatio: '=',
+            aspectRatio: '=?',
             allowCropResizeOnCorners: '=?',
 
             dominantColor: '=?',
@@ -3177,8 +3201,6 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
                             callback(resultImage);
                         }
                         cropHost.getResultImageDataBlob().then(function (blob) {
-							if (!blob)
-								return;
                             scope.resultBlob = blob;
                             scope.urlBlob = urlCreator.createObjectURL(blob);
                         });
@@ -3265,15 +3287,9 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
                     case 'de':
                     case 'de-DE':
                         return 'Laden';
-						
-					case 'en':
-                    case 'en-US':
-						return 'loading';
-						
-					case 'zh':
-                    case 'zh-CN':
+
                     default:
-                        return '请稍候';
+                        return 'Loading';
                 }
             };
 
@@ -3281,7 +3297,7 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
                 scope.chargement = printLoadMsg();
             }
             var displayLoading = function () {
-                element.append('<div class="loading"><span class="ui loading form">' + scope.chargement + '...</span></div>');
+                element.append('<div class="loading"><span>' + scope.chargement + '...</span></div>');
             };
 
             // Setup CropHost Event Handlers
@@ -3328,8 +3344,22 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
                 scope.timeout = $timeout(function () {
                     scope.timeout = null;
                     cropHost.setInitMax(scope.initMaxArea);
-                    cropHost.setNewImageSource(scope.image);
+                    cropHost.setNewImageSource(scope.image, scope.imageAngle);
                 }, 100);
+            });
+            scope.$watch('imageAngle', function () {
+              if (scope.image) {
+                displayLoading();
+              }
+              // cancel timeout if necessary
+              if (scope.timeout !== null) {
+                $timeout.cancel(scope.timeout);
+              }
+              scope.timeout = $timeout(function () {
+                scope.timeout = null;
+                cropHost.setInitMax(scope.initMaxArea);
+                cropHost.setNewImageSource(scope.image, scope.imageAngle);
+              }, 100);
             });
             scope.$watch('areaType', function () {
                 cropHost.setAreaType(scope.areaType);
@@ -3369,9 +3399,6 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
                 updateResultImage(scope);
             });
             scope.$watch('resultImageSize', function () {
-				if (typeof scope.resultImageSize === 'string' && scope.resultImageSize.indexOf(']')>=0)
-                    scope.resultImageSize = JSON.parse(scope.resultImageSize);
-
                 cropHost.setResultImageSize(scope.resultImageSize);
                 updateResultImage(scope);
             });

@@ -5,9 +5,9 @@ angular.module('uiCropper').factory('cropAreaRectangle', ['cropArea', function (
         CropArea.apply(this, arguments);
 
         this._resizeCtrlBaseRadius = 15;
-        this._resizeCtrlNormalRatio = 0.6;
-        this._resizeCtrlHoverRatio = 0.70;
-        this._iconMoveNormalRatio = 0.9;
+        this._resizeCtrlNormalRatio = 1.0;  //0.6;
+        this._resizeCtrlHoverRatio = 1.2;
+        this._iconMoveNormalRatio = 1.0;
         this._iconMoveHoverRatio = 1.2;
 
         this._resizeCtrlNormalRadius = this._resizeCtrlBaseRadius * this._resizeCtrlNormalRatio;
@@ -65,13 +65,24 @@ angular.module('uiCropper').factory('cropAreaRectangle', ['cropArea', function (
     CropAreaRectangle.prototype._isCoordWithinResizeCtrl = function (coord) {
         var resizeIconsCenterCoords = this._calcRectangleCorners();
         var res = -1;
+        var touchDis = this._resizeCtrlHoverRadius*2;
+        touchDis *= touchDis;
+
         for (var i = 0, len = resizeIconsCenterCoords.length; i < len; i++) {
             var resizeIconCenterCoords = resizeIconsCenterCoords[i];
-            if (coord[0] > resizeIconCenterCoords[0] - this._resizeCtrlHoverRadius && coord[0] < resizeIconCenterCoords[0] + this._resizeCtrlHoverRadius &&
-                coord[1] > resizeIconCenterCoords[1] - this._resizeCtrlHoverRadius && coord[1] < resizeIconCenterCoords[1] + this._resizeCtrlHoverRadius) {
-                res = i;
-                break;
+            var dx = coord[0] - resizeIconCenterCoords[0];
+            var dy = coord[1] - resizeIconCenterCoords[1];
+            var dis2 = dx*dx + dy*dy;
+            if (dis2 < touchDis)
+            {
+              res = i;
+              break;
             }
+            // if (coord[0] > resizeIconCenterCoords[0] - this._resizeCtrlHoverRadius && coord[0] < resizeIconCenterCoords[0] + this._resizeCtrlHoverRadius &&
+            //     coord[1] > resizeIconCenterCoords[1] - this._resizeCtrlHoverRadius && coord[1] < resizeIconCenterCoords[1] + this._resizeCtrlHoverRadius) {
+            //     res = i;
+            //     break;
+            // }
         }
         return res;
     };

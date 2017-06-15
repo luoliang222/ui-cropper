@@ -244,6 +244,20 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
                     cropHost.setNewImageSource(scope.image, scope.imageAngle);
                 }, 100);
             });
+            scope.$watch('imageAngle', function () {
+              if (scope.image) {
+                displayLoading();
+              }
+              // cancel timeout if necessary
+              if (scope.timeout !== null) {
+                $timeout.cancel(scope.timeout);
+              }
+              scope.timeout = $timeout(function () {
+                scope.timeout = null;
+                cropHost.setInitMax(scope.initMaxArea);
+                cropHost.setNewImageSource(scope.image, scope.imageAngle);
+              }, 100);
+            });
             scope.$watch('areaType', function () {
                 cropHost.setAreaType(scope.areaType);
                 updateResultImage(scope);

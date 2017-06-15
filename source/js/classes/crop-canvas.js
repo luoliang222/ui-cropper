@@ -144,14 +144,30 @@ angular.module('uiCropper').factory('cropCanvas', [function() {
             ctx.restore();
         };
 
+        // this.drawIconResizeBoxBase = function(centerCoords, boxSize, scale) {
+        //   var scaledBoxSize = boxSize * scale;
+        //   ctx.save();
+        //   ctx.strokeStyle = colors.resizeBoxStroke;
+        //   ctx.lineWidth = cropper.strokeWidth;
+        //   ctx.fillStyle = colors.resizeBoxFill;
+        //   ctx.fillRect(centerCoords[0] - scaledBoxSize / 2, centerCoords[1] - scaledBoxSize / 2, scaledBoxSize, scaledBoxSize);
+        //   ctx.strokeRect(centerCoords[0] - scaledBoxSize / 2, centerCoords[1] - scaledBoxSize / 2, scaledBoxSize, scaledBoxSize);
+        //   ctx.restore();
+        // };
         this.drawIconResizeBoxBase = function(centerCoords, boxSize, scale) {
             var scaledBoxSize = boxSize * scale;
             ctx.save();
-            ctx.strokeStyle = colors.resizeBoxStroke;
-            ctx.lineWidth = cropper.strokeWidth;
-            ctx.fillStyle = colors.resizeBoxFill;
-            ctx.fillRect(centerCoords[0] - scaledBoxSize / 2, centerCoords[1] - scaledBoxSize / 2, scaledBoxSize, scaledBoxSize);
-            ctx.strokeRect(centerCoords[0] - scaledBoxSize / 2, centerCoords[1] - scaledBoxSize / 2, scaledBoxSize, scaledBoxSize);
+              // 绘制原型选取区域
+              ctx.beginPath();
+                ctx.strokeStyle = colors.resizeBoxStroke;
+                ctx.lineWidth = cropper.strokeWidth;
+                ctx.fillStyle = colors.resizeBoxFill;
+                ctx.arc(centerCoords[0], centerCoords[1], scaledBoxSize, 0, 2*Math.PI);
+                ctx.stroke();
+                ctx.globalAlpha=0.2;  // 设置半透明
+                ctx.fill();
+              ctx.stroke();
+            ctx.globalAlpha=1.0;
             ctx.restore();
         };
         this.drawIconResizeBoxNESW = function(centerCoords, boxSize, scale) {
@@ -176,7 +192,7 @@ angular.module('uiCropper').factory('cropCanvas', [function() {
             ctx.save();
             ctx.strokeStyle = colors.areaOutline;
             ctx.lineWidth = cropper.strokeWidth;
-            ctx.setLineDash([5, 5]);
+//            ctx.setLineDash([5, 5]);
             ctx.beginPath();
             fnDrawClipPath(ctx, centerCoords, size);
             ctx.stroke();
