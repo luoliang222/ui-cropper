@@ -397,9 +397,13 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                     events.trigger('load-done');
 
                     cropEXIF.getData(newImage, function () {
-                        var orientation = cropEXIF.getTag(newImage, 'Orientation');
+                        // var orientation = cropEXIF.getTag(newImage, 'Orientation');
+                        while(imageAngle > 360)
+                            imageAngle -= 360;
+                        while(imageAngle < 0)
+                            imageAngle += 360;
 
-                        if (imageAngle !=0 || [3, 6, 8].indexOf(orientation) > -1) {
+                        if (imageAngle !=0) {
                             var canvas = document.createElement('canvas'),
                                 ctx = canvas.getContext('2d'),
                                 cw = newImage.width,
@@ -411,13 +415,13 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                                 rh = 0;
                             rw = cw;
                             rh = ch;
-                            switch (orientation) {
-                                case 3:
+                            switch (imageAngle) {
+                                case 180:
                                     cx = -newImage.width;
                                     cy = -newImage.height;
                                     deg = 180;
                                     break;
-                                case 6:
+                                case 90:
                                     cw = newImage.height;
                                     ch = newImage.width;
                                     cy = -newImage.height;
@@ -425,7 +429,7 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                                     rh = cw;
                                     deg = 90;
                                     break;
-                                case 8:
+                                case 270:
                                     cw = newImage.height;
                                     ch = newImage.width;
                                     cx = -newImage.width;
@@ -455,16 +459,11 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                                 rh = p * rh;
                             }
 
+                            // // 设置旋转后的canvas大小
                             canvas.width = cw;
                             canvas.height = ch;
                             ctx.rotate(deg * Math.PI / 180);
-
-                            // 以图片中心为原点旋转指定角度
-                            ctx.translate(cw/2, ch/2);
-                            ctx.rotate(imageAngle*Math.PI/180);
-                            ctx.translate(-cw/2, -ch/2);
-
-                            ctx.drawImage(newImage, cx, cy, rw, rh);
+                            ctx.drawImage(newImage, cx, cy);
 
                             image = new Image();
                             image.onload = function () {
