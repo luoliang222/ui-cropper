@@ -440,24 +440,24 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                             }
 
                             //// canvas.toDataURL will only work if the canvas isn't too large. Resize to 1000px.
-                            var maxWorH = 1000;
-                            if (cw > maxWorH || ch > maxWorH) {
-                                var p = 0;
-                                if (cw > maxWorH) {
-                                    p = (maxWorH) / cw;
-                                    cw = maxWorH;
-                                    ch = p * ch;
-                                } else if (ch > maxWorH) {
-                                    p = (maxWorH) / ch;
-                                    ch = maxWorH;
-                                    cw = p * cw;
-                                }
+                            // var maxWorH = 1000;
+                            // if (cw > maxWorH || ch > maxWorH) {
+                            //     var p = 0;
+                            //     if (cw > maxWorH) {
+                            //         p = (maxWorH) / cw;
+                            //         cw = maxWorH;
+                            //         ch = p * ch;
+                            //     } else if (ch > maxWorH) {
+                            //         p = (maxWorH) / ch;
+                            //         ch = maxWorH;
+                            //         cw = p * cw;
+                            //     }
 
-                                cy = p * cy;
-                                cx = p * cx;
-                                rw = p * rw;
-                                rh = p * rh;
-                            }
+                            //     cy = p * cy;
+                            //     cx = p * cx;
+                            //     rw = p * rw;
+                            //     rh = p * rh;
+                            // }
 
                             // // 设置旋转后的canvas大小
                             canvas.width = cw;

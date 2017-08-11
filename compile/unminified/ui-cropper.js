@@ -5,7 +5,7 @@
  * Copyright (c) 2017 Alex Kaul
  * License: MIT
  *
- * Generated at Friday, June 16th, 2017, 11:29:15 AM
+ * Generated at Friday, August 11th, 2017, 2:24:03 PM
  */
 (function() {
 angular.module('uiCropper', []);
@@ -2630,24 +2630,24 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                             }
 
                             //// canvas.toDataURL will only work if the canvas isn't too large. Resize to 1000px.
-                            var maxWorH = 1000;
-                            if (cw > maxWorH || ch > maxWorH) {
-                                var p = 0;
-                                if (cw > maxWorH) {
-                                    p = (maxWorH) / cw;
-                                    cw = maxWorH;
-                                    ch = p * ch;
-                                } else if (ch > maxWorH) {
-                                    p = (maxWorH) / ch;
-                                    ch = maxWorH;
-                                    cw = p * cw;
-                                }
+                            // var maxWorH = 1000;
+                            // if (cw > maxWorH || ch > maxWorH) {
+                            //     var p = 0;
+                            //     if (cw > maxWorH) {
+                            //         p = (maxWorH) / cw;
+                            //         cw = maxWorH;
+                            //         ch = p * ch;
+                            //     } else if (ch > maxWorH) {
+                            //         p = (maxWorH) / ch;
+                            //         ch = maxWorH;
+                            //         cw = p * cw;
+                            //     }
 
-                                cy = p * cy;
-                                cx = p * cx;
-                                rw = p * rw;
-                                rh = p * rh;
-                            }
+                            //     cy = p * cy;
+                            //     cx = p * cx;
+                            //     rw = p * rw;
+                            //     rh = p * rh;
+                            // }
 
                             // // 设置旋转后的canvas大小
                             canvas.width = cw;
