@@ -397,29 +397,41 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                     events.trigger('load-done');
 
                     cropEXIF.getData(newImage, function () {
-                        // var orientation = cropEXIF.getTag(newImage, 'Orientation');
-                        while(imageAngle > 360)
-                            imageAngle -= 360;
-                        while(imageAngle < 0)
-                            imageAngle += 360;
+                        var orientation = cropEXIF.getTag(newImage, 'Orientation');
+                        var deg = 0;
+                        switch (orientation) {
+                            case 3:
+                                deg = 180;
+                                break;
+                            case 6:
+                                deg = 90;
+                                break;
+                            case 8:
+                                deg = 270;
+                                break;
+                        }
 
-                        if (imageAngle !=0) {
+                        deg += imageAngle;
+                        while(deg > 360)
+                        deg -= 360;
+                        while(deg < 0)
+                        deg += 360;
+
+                        if (deg !=0) {
                             var canvas = document.createElement('canvas'),
                                 ctx = canvas.getContext('2d'),
                                 cw = newImage.width,
                                 ch = newImage.height,
                                 cx = 0,
                                 cy = 0,
-                                deg = 0,
                                 rw = 0,
                                 rh = 0;
                             rw = cw;
                             rh = ch;
-                            switch (imageAngle) {
+                            switch (deg) {
                                 case 180:
                                     cx = -newImage.width;
                                     cy = -newImage.height;
-                                    deg = 180;
                                     break;
                                 case 90:
                                     cw = newImage.height;
@@ -427,7 +439,6 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                                     cy = -newImage.height;
                                     rw = ch;
                                     rh = cw;
-                                    deg = 90;
                                     break;
                                 case 270:
                                     cw = newImage.height;
@@ -435,7 +446,6 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                                     cx = -newImage.width;
                                     rw = ch;
                                     rh = cw;
-                                    deg = 270;
                                     break;
                             }
 
