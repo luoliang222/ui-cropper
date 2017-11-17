@@ -388,7 +388,7 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
             return theArea;
         };
 
-        this.setNewImageSource = function (imageSource, imageAngle) {
+        this.setNewImageSource = function (imageSource, imageAngle, onLoadImage) {
             image = null;
             resetCropHost();
             if (imageSource) {
@@ -397,27 +397,29 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                     events.trigger('load-done');
 
                     cropEXIF.getData(newImage, function () {
-                        var orientation = cropEXIF.getTag(newImage, 'Orientation');
-                        var deg = 0;
-                        switch (orientation) {
-                            case 3:
-                                deg = 180;
-                                break;
-                            case 6:
-                                deg = 90;
-                                break;
-                            case 8:
-                                deg = 270;
-                                break;
-                        }
+                        // var deg = 0;
+                        // var orientation = cropEXIF.getTag(newImage, 'Orientation');
+                        // switch (orientation) {
+                        //     case 3:
+                        //         deg = 180;
+                        //         break;
+                        //     case 6:
+                        //         deg = 90;
+                        //         break;
+                        //     case 8:
+                        //         deg = 270;
+                        //         break;
+                        // }
 
-                        deg += imageAngle;
+                        // deg += imageAngle;
+                        var deg = imageAngle;
                         while(deg > 360)
                         deg -= 360;
                         while(deg < 0)
                         deg += 360;
 
-                        if (deg !=0) {
+                        // if (deg !=0) {
+                        if (1) {
                             var canvas = document.createElement('canvas'),
                                 ctx = canvas.getContext('2d'),
                                 cw = newImage.width,
@@ -482,6 +484,11 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                             };
 
                             image.src = canvas.toDataURL(resImgFormat);
+                            // 输出原始图像
+                            canvas.toBlob(function (blob) {
+                                onLoadImage({blob:blob});
+                            }, resImgFormat);
+                            
                         } else {
                             image = newImage;
                             events.trigger('image-updated');
