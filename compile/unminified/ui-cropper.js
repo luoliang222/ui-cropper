@@ -5,7 +5,7 @@
  * Copyright (c) 2017 Alex Kaul
  * License: MIT
  *
- * Generated at Friday, November 17th, 2017, 10:36:26 PM
+ * Generated at Tuesday, December 26th, 2017, 11:08:32 PM
  */
 (function() {
 angular.module('uiCropper', []);
@@ -2578,7 +2578,7 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
             return theArea;
         };
 
-        this.setNewImageSource = function (imageSource, imageAngle, onLoadImage) {
+        this.setNewImageSource = function (imageSource, imageAngle) {
             image = null;
             resetCropHost();
             if (imageSource) {
@@ -2587,29 +2587,27 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                     events.trigger('load-done');
 
                     cropEXIF.getData(newImage, function () {
-                        // var deg = 0;
-                        // var orientation = cropEXIF.getTag(newImage, 'Orientation');
-                        // switch (orientation) {
-                        //     case 3:
-                        //         deg = 180;
-                        //         break;
-                        //     case 6:
-                        //         deg = 90;
-                        //         break;
-                        //     case 8:
-                        //         deg = 270;
-                        //         break;
-                        // }
+                        var orientation = cropEXIF.getTag(newImage, 'Orientation');
+                        var deg = 0;
+                        switch (orientation) {
+                            case 3:
+                                deg = 180;
+                                break;
+                            case 6:
+                                deg = 90;
+                                break;
+                            case 8:
+                                deg = 270;
+                                break;
+                        }
 
-                        // deg += imageAngle;
-                        var deg = imageAngle;
+                        deg += imageAngle;
                         while(deg > 360)
-                        deg -= 360;
+	                        deg -= 360;
                         while(deg < 0)
-                        deg += 360;
+  	                      deg += 360;
 
-                        // if (deg !=0) {
-                        if (1) {
+                        if (deg !=0) {
                             var canvas = document.createElement('canvas'),
                                 ctx = canvas.getContext('2d'),
                                 cw = newImage.width,
@@ -2674,11 +2672,6 @@ angular.module('uiCropper').factory('cropHost', ['$document', '$q', 'cropAreaCir
                             };
 
                             image.src = canvas.toDataURL(resImgFormat);
-                            // 输出原始图像
-                            canvas.toBlob(function (blob) {
-                                onLoadImage({blob:blob});
-                            }, resImgFormat);
-                            
                         } else {
                             image = newImage;
                             events.trigger('image-updated');
@@ -3168,7 +3161,6 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
             onLoadBegin: '&',
             onLoadDone: '&',
             onLoadError: '&',
-            onLoadImage: '&',   // src image blob copy from image. this is for simple the format of image.            
         },
         template: '<canvas></canvas>',
         controller: ['$scope', function ($scope) {
@@ -3361,7 +3353,7 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
                 scope.timeout = $timeout(function () {
                     scope.timeout = null;
                     cropHost.setInitMax(scope.initMaxArea);
-                    cropHost.setNewImageSource(scope.image, scope.imageAngle, scope.onLoadImage);
+                    cropHost.setNewImageSource(scope.image, scope.imageAngle);
                 }, 100);
             });
             scope.$watch('imageAngle', function () {
@@ -3375,7 +3367,7 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
               scope.timeout = $timeout(function () {
                 scope.timeout = null;
                 cropHost.setInitMax(scope.initMaxArea);
-                cropHost.setNewImageSource(scope.image, scope.imageAngle, scope.onLoadImage);
+                cropHost.setNewImageSource(scope.image, scope.imageAngle);
               }, 100);
             });
             scope.$watch('areaType', function () {

@@ -48,7 +48,6 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
             onLoadBegin: '&',
             onLoadDone: '&',
             onLoadError: '&',
-            onLoadImage: '&',   // src image blob copy from image. this is for simple the format of image.            
         },
         template: '<canvas></canvas>',
         controller: ['$scope', function ($scope) {
@@ -242,7 +241,7 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
                 scope.timeout = $timeout(function () {
                     scope.timeout = null;
                     cropHost.setInitMax(scope.initMaxArea);
-                    cropHost.setNewImageSource(scope.image, scope.imageAngle, scope.onLoadImage);
+                    cropHost.setNewImageSource(scope.image, scope.imageAngle);
                 }, 100);
             });
             scope.$watch('imageAngle', function () {
@@ -256,7 +255,7 @@ angular.module('uiCropper').directive('uiCropper', ['$timeout', 'cropHost', 'cro
               scope.timeout = $timeout(function () {
                 scope.timeout = null;
                 cropHost.setInitMax(scope.initMaxArea);
-                cropHost.setNewImageSource(scope.image, scope.imageAngle, scope.onLoadImage);
+                cropHost.setNewImageSource(scope.image, scope.imageAngle);
               }, 100);
             });
             scope.$watch('areaType', function () {
